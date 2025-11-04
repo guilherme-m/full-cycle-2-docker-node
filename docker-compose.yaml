@@ -6,8 +6,11 @@ services:
     build:
       context: node
     container_name: app
+    entrypoint: ["/bin/sh","-c","npm install && dockerize -wait tcp://db:3306 -timeout 20s node index.js"]
     networks:
       - app-net
+    volumes:
+      - ./node/app:/app
     depends_on:
       - db
   
@@ -30,13 +33,15 @@ services:
     container_name: db
     restart: always
     volumes:
-      - ./mysql:/var/lib/mysql
+      - app_volume:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=app_db
     networks:
       - app-net
 
+volumes:
+  app_volume:
 
 networks:
   app-net:
